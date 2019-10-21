@@ -1,0 +1,22 @@
+#应用端口配置
+server:
+  port: 8084
+
+spring:
+  #Spring 开发工具配置
+  devtools:
+    restart:
+      enabled: true
+  #数据库配置
+  datasource:
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/dormitory?useUnicode=true&characterEncoding=UTF-8&useSSL=false
+
+
+#mybatis-plus配置
+mybatis-plus:
+  mapper-locations: classpath:/mapper/*Mapper.xml
+  #实体扫描，多个package用逗号或者分号分隔
+  typeAliasesPackage: com.ray.dormitory.bean
