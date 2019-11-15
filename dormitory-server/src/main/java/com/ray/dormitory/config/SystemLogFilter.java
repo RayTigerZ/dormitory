@@ -2,8 +2,9 @@ package com.ray.dormitory.config;
 
 
 import com.google.gson.Gson;
-import com.ray.dormitory.service.LogService;
-import com.ray.dormitory.util.JWTUtil;
+import com.ray.dormitory.service.SystemLogService;
+import com.ray.dormitory.util.JwtUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.web.servlet.AdviceFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -11,7 +12,6 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -19,30 +19,35 @@ import java.util.Map;
 /**
  * 增加的这个Filter，用于记录请求的内容及时间
  * 原来的
+ *
+ * @author Ray
  */
 
-public class LogFirstFilter extends AdviceFilter {
+@Slf4j
+public class SystemLogFilter extends AdviceFilter {
 
     @Autowired
-    private LogService logService;
+    private SystemLogService systemLogService;
+
+    private final static String OPTIONS = "OPTIONS";
 
     @Override
-    protected boolean preHandle(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException {
-        System.out.println("LogFirstFilter is into preHandle?");
+    protected boolean preHandle(ServletRequest servletRequest, ServletResponse servletResponse) {
+        log.info("SystemLogFilter is into preHandle");
         servletRequest.setAttribute("startTime", System.currentTimeMillis());
 
         return true;
     }
 
     @Override
-    protected void postHandle(ServletRequest request, ServletResponse response) throws Exception {
+    protected void postHandle(ServletRequest request, ServletResponse response) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
         String httpMethod = ((HttpServletRequest) request).getMethod();
 
         //http预请求，不进行处理
-        if ("OPTIONS".equals(httpMethod)) {
+        if (OPTIONS.equals(httpMethod)) {
             return;
         }
 
@@ -51,7 +56,9 @@ public class LogFirstFilter extends AdviceFilter {
         if (null != requestUri && requestUri.startsWith(basePath)) {
             requestUri = requestUri.replaceFirst(basePath, "");
         }
-//        System.out.println("LogFirstFilter postHandle request uri:"+requestUri);
+
+        log.info("SystemLogFilter postHandle request uri: {}", requestUri);
+
         long startTime = (Long) request.getAttribute("startTime");
         long endTime = System.currentTimeMillis();
         long useTime = endTime - startTime; // log it
@@ -79,15 +86,14 @@ public class LogFirstFilter extends AdviceFilter {
         String browser = ((HttpServletRequest) request).getHeader("User-Agent");
 
 
-        String addUsername = null;
         String authorization = httpServletRequest.getHeader("Authorization");
         if (authorization != null) {
             if (addAccount == null)//登录时，已经赋值了
             {
-                addAccount = JWTUtil.getUsername(authorization);
+                addAccount = JwtUtil.getUsername(authorization);
             }
-            addUsername = JWTUtil.getTruename(authorization);
+
         }
-        logService.addLog(requestUri, remoteAddr, httpMethod, params, null, useTime, browser, addAccount, addUsername);
+        systemLogService.addLog(requestUri, remoteAddr, httpMethod, params, null, useTime, browser, addAccount);
     }
 }

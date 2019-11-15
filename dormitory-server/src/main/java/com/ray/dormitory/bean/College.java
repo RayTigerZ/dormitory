@@ -10,17 +10,17 @@ import lombok.ToString;
 
 /**
  * @author Ray Z
- * @date 2019/10/26 18:12:39
+ * @Data 2019.10.26 18:35
  */
+
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 
-@TableName("role")
-public class Role {
+@TableName("college")
+public class College {
     @TableId(type = IdType.AUTO)
     private Integer id;
     private String name;
-    private String nameZh;
 }

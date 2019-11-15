@@ -2,6 +2,8 @@ package com.ray.dormitory.service;
 
 import com.ray.dormitory.bean.PermissionRole;
 import com.ray.dormitory.mapper.UserMapper;
+import com.ray.dormitory.service.impl.SystemLogServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.spring.web.ShiroFilterFactoryBean;
 import org.apache.shiro.web.filter.mgt.DefaultFilterChainManager;
 import org.apache.shiro.web.filter.mgt.PathMatchingFilterChainResolver;
@@ -14,6 +16,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Service
 public class ShiroService {
 
@@ -25,18 +28,20 @@ public class ShiroService {
         Map<String, String> filterRuleMap = new LinkedHashMap<>();
 
         // 所有请求通过我们自己的JWT Filter
-        filterRuleMap.put("/login/**", "anon");
+        filterRuleMap.put("/user/login", "anon");
         filterRuleMap.put("/logout", "anon");
+        filterRuleMap.put("/test", "jwt");
         filterRuleMap.put("/token", "anon");
         filterRuleMap.put("/shiro/updatePermission", "anon");
         filterRuleMap.put("/portal/portal/**", "anon");//门户获取系统数据
         filterRuleMap.put("/mhLogin/auth/**", "anon");//门户登录
-
-        filterRuleMap.put("/portal/mhDataUpload/**", "jwt");//门户数据上报
-        filterRuleMap.put("/admin/**", "jwt");
         // 访问401和404页面不通过我们的Filter
         filterRuleMap.put("/401", "anon");
         filterRuleMap.put("/500", "anon");
+
+        filterRuleMap.put("/portal/mhDataUpload/**", "jwt");//门户数据上报
+        filterRuleMap.put("/admin/**", "jwt");
+
         filterRuleMap.put("/getUser", "jwt");
 
         List<PermissionRole> roles = userMapper.getAllRolesByPermission();
@@ -55,10 +60,11 @@ public class ShiroService {
                 operateType.put(role.getUrl(), role.getName());
             }
         }
-        LogService.setOperateType(operateType);
+        SystemLogServiceImpl.setOperateType(operateType);
 
         //filterRuleMap.put("/**", "roles[]");//没有配置的请求，全部转到这个上面
 //        System.out.println(JSON.toJSONString(filterRuleMap));
+        log.info(filterRuleMap.toString());
         return filterRuleMap;
     }
 

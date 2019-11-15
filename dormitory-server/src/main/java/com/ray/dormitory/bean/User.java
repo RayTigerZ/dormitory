@@ -1,5 +1,8 @@
 package com.ray.dormitory.bean;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -16,7 +19,10 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
+
+@TableName(value = "user", resultMap = "userResultMap")
 public class User {
+    @TableId(type = IdType.AUTO)
     private Integer id;
     private String name;
     private String account;
@@ -26,6 +32,10 @@ public class User {
     private String email;
     private String sex;
     private Boolean isUsable;
-    private Set<Role> roles;
+    private Set<String> roles;
+    private String className;
+    private String college;
+    private String roomNum;
+
 
 }

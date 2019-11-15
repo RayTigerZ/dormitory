@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Set;
 
 @Mapper
-public interface UserMapper extends BaseMapper<UserMapper> {
+public interface UserMapper extends BaseMapper<User> {
     /**
      * 通过用户名获取用户基本信息
      *

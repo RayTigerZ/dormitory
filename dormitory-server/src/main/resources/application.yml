@@ -1,6 +1,6 @@
 #应用端口配置
 server:
-  port: 8084
+  port: 8090
 
 spring:
   #Spring 开发工具配置

@@ -10,18 +10,39 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Date;
 import java.util.Map;
 
-public class JWTUtil {
+public class JwtUtil {
 
-    // 过期时间30分钟
+    /**
+     * 过期时间30分钟
+     */
+
     private static final long EXPIRE_TIME = 30 * 60 * 1000;
 
-    private static final String SESSION_TIME_PREX = "TIME_";
+    /**
+     * redis缓存中帐号登陆 时间值的key前缀
+     */
+    private static final String SESSION_TIME_PREFIX = "TIME_";
 
-    //设置私钥
-    private static final String SECRET = "gcloudsw";
+    /**
+     * redis缓存中帐号登陆 账户值的key前缀
+     */
+    private static final String SESSION_USER_PREFIX = "USER_";
 
-    public static String getAccountTimePrex(String sysType, String account) {
-        return sysType + "_" + SESSION_TIME_PREX + account;
+    /**
+     * 设置私钥
+     */
+    private static final String SECRET = "ray_dormitory";
+
+    public static String getSecret() {
+        return SECRET;
+    }
+
+    public static String getAccountTimeKey(String account) {
+        return SESSION_TIME_PREFIX + account;
+    }
+
+    public static String getAccountUserKey(String account) {
+        return SESSION_TIME_PREFIX + account;
     }
 
 
@@ -218,6 +239,6 @@ public class JWTUtil {
     //测试
     public static void main(String[] args) {
         String str = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0cnVlTmFtZSI6Iuezu-e7n-euoeeQhuWRmCIsIm9yZ2FuaXplSWQiOjEsInJvbGVJZHMiOiIxLDIsNiwyNCIsImFyZWFJZCI6MSwic3lzVHlwZSI6InRqIiwicm9sZXMiOiLnrqHnkIblkZjop5LoibIs5pmu6YCa55So5oi357uf5LiA6KeS6ImyLEFwcOinkuiJsizlhbHkuqvnm67lvZXop5LoibIiLCJ1c2VybmFtZSI6ImFkbWluIn0.FMWpMb5F_9X-0bMFmHxfo1hLdn44b_usIr3D-_EGN-U";
-        System.out.println(JWTUtil.getRolesByToken(str));
+        System.out.println(JwtUtil.getRolesByToken(str));
     }
 }

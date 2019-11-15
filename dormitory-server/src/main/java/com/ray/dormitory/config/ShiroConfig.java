@@ -41,15 +41,18 @@ public class ShiroConfig {
         return manager;
     }
 
+
     @Bean
     public CustomRolesAuthorizationFilter rolesAuthorizationFilter() {
         return new CustomRolesAuthorizationFilter();
     }
 
+
     @Bean
-    public LogFirstFilter logFirstFilter() {
-        return new LogFirstFilter();
+    public SystemLogFilter systemLogFilter() {
+        return new SystemLogFilter();
     }
+
 
     @Bean("shiroFilter")
     public ShiroFilterFactoryBean factory(DefaultWebSecurityManager securityManager, ShiroService shiroService) {
@@ -57,25 +60,34 @@ public class ShiroConfig {
 
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new LinkedHashMap<>();
+
         //jwt签发认证
-        filterMap.put("jwt", new JWTFilter());
+        //采用new 的方式来自已创建这个filter对象.脱离spring的管理这个filter就不会注册到过滤器链中
+
+        filterMap.put("jwt", new JwtFilter());
         //url权限认证
         filterMap.put("roles", rolesAuthorizationFilter());
-        filterMap.put("logFirstFilter", new LogFirstFilter());
+        filterMap.put("systemLogFilter", systemLogFilter());
         factoryBean.setFilters(filterMap);
 
         factoryBean.setSecurityManager(securityManager);
         factoryBean.setUnauthorizedUrl("/401");
-
+        //factoryBean.setUnauthorizedUrl("/user/login");
         /*
          * 自定义url规则
          * http://shiro.apache.org/web.html#urls-
          */
         //shiroFilter.setFilterChainDefinitionMap(shiroService.getAllRolesByPermission());
-
-        factoryBean.setFilterChainDefinitionMap(shiroService.getAllRolesByPermission());
+        Map<String, String> map = shiroService.getAllRolesByPermission();
+        factoryBean.setFilterChainDefinitionMap(map);
         return factoryBean;
     }
+
+
+//    @Bean
+//    public JwtFilter jwtFilter() {
+//        return new JwtFilter();
+//    }
 
     /**
      * 下面的代码是添加注解支持

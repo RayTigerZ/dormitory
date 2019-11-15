@@ -1,10 +1,9 @@
 package com.ray.dormitory.config;
 
 
-import com.ray.dormitory.bean.Role;
 import com.ray.dormitory.bean.User;
 import com.ray.dormitory.service.UserService;
-import com.ray.dormitory.util.JWTUtil;
+import com.ray.dormitory.util.JwtUtil;
 import com.ray.dormitory.util.bean.JWTToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
@@ -18,7 +17,6 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.util.HashSet;
 import java.util.Set;
 
 @Slf4j
@@ -44,17 +42,15 @@ public class MyRealm extends AuthorizingRealm {
     @Override
     protected AuthorizationInfo doGetAuthorizationInfo(PrincipalCollection principals) {
 
-        String account = JWTUtil.getAccount(principals.toString());
+        String account = JwtUtil.getAccount(principals.toString());
         User user = userService.getUserByAccount(account);
 
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
 
-        Set<String> roleNames = new HashSet<>();
-        Set<Role> roles = user.getRoles();
-        for (Role role : roles) {
-            roleNames.add(role.getName());
-        }
-        simpleAuthorizationInfo.addRoles(roleNames);
+
+        Set<String> roles = user.getRoles();
+
+        simpleAuthorizationInfo.addRoles(roles);
 
 
         simpleAuthorizationInfo.addStringPermissions(userService.getUserPermission(account));
@@ -69,7 +65,7 @@ public class MyRealm extends AuthorizingRealm {
         String token = (String) auth.getCredentials();
 
         // 解密获得username，用于和数据库进行对比
-        String account = JWTUtil.getAccount(token);
+        String account = JwtUtil.getAccount(token);
         if (account == null) {
             throw new AuthenticationException("token invalid");
         }
@@ -79,7 +75,7 @@ public class MyRealm extends AuthorizingRealm {
             throw new AuthenticationException("User didn't existed!");
         }
 
-        if (!JWTUtil.verify(token, account)) {
+        if (!JwtUtil.verify(token, account)) {
             throw new AuthenticationException("Username or password error");
         }
 
