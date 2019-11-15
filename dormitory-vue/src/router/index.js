@@ -14,13 +14,18 @@ const routes = [{
         component: Index
     },
     {
+        path: '/login',
+        name: 'login',
+        component: () => import('../views/Login.vue')
+    },
+    {
         path: '/about',
         name: 'about',
         component: () => import('../views/About.vue') //懒加载组件，访问时才加载组件
-    },{
-        path:'/manage',
-        name:'manage',
-        component:()=>import('../views/Manage.vue')
+    }, {
+        path: '/manage',
+        name: 'manage',
+        component: () => import('../views/Manage.vue')
     }
 ]
 

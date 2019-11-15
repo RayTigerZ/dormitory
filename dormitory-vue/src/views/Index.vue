@@ -1,7 +1,7 @@
 <template>
   <div class="home">
     <h3>首页</h3>
-    <router-link to="manage">后台登陆</router-link>
+    <router-link to="login">后台登陆</router-link>
     <HelloWorld msg="Welcome to Your Vue.js App" />
   </div>
 </template>
