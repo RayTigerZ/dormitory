@@ -23,8 +23,14 @@
                 v-model="user.password"
               ></el-input>
             </el-form-item>
+            <!-- <span>管理员帐号：20100001，密码：admin123</span> -->
             <el-form-item style="padding-top:25px;">
-              <el-button type="primary" class="login-button" @click="submitLogin">登 录</el-button>
+              <el-button
+                type="primary"
+                class="login-button"
+                @click="submitLogin"
+                >登 录</el-button
+              >
             </el-form-item>
           </el-form>
         </el-card>
@@ -34,8 +40,7 @@
 </template>
 
 <script>
-import { postRequest } from "../utils/request";
-import md5 from "js-md5";
+import { login } from "../api/login";
 export default {
   data() {
     return {
@@ -71,15 +76,18 @@ export default {
     submitLogin() {
       this.$refs["loginForm"].validate(valid => {
         if (valid) {
-          let params = {
-            account: this.user.account,
-            password: md5(this.user.password)
-          };
-          console.log(params);
-          postRequest("/user/login", params)
+          login(this.user.account, this.user.password)
             .then(res => {
               if (res.data && res.data.code && res.data.code == 200) {
-                this.$router.push({ path: "manage" });
+                let redirect = this.$route.query.redirect;
+
+                if (redirect == "" || redirect == undefined) {
+                  redirect = "manage";
+                }
+
+                this.$store.commit("setToken", res.data.data.token);
+                this.$store.commit("setUserName", res.data.data.name);
+                this.$router.push({ path: redirect });
               }
             })
             .catch(err => {
@@ -88,10 +96,12 @@ export default {
         }
       });
     }
+  },
+  created() {
+    console.log("管理员帐号：20100001，密码：admin123");
   }
 };
 </script>
-
 
 <style scoped>
 .el-row,
@@ -103,12 +113,14 @@ export default {
   margin: 0px auto;
   overflow: hidden;
   height: 100%;
+  min-height: 600px;
   min-width: 720px;
   background-size: cover;
   background-position: center center;
 }
 
 .login-title {
+  text-align: center;
   font-size: 28px;
   font-weight: 600;
   font-family: Arial, "Microsoft YaHei", sans-serif;
@@ -118,7 +130,7 @@ export default {
 }
 .login-card {
   border: 1px;
-  width: 320px;
+  width: 350px;
   height: 370px;
   background: rgb(255, 255, 255);
   margin: 80px auto;

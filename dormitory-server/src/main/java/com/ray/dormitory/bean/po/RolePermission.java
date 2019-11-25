@@ -1,26 +1,25 @@
-package com.ray.dormitory.bean;
+package com.ray.dormitory.bean.po;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 /**
- * @author Ray Z
- * @Data 2019.10.26 18:35
+ * @author Ray
+ * @date 2019/11/21 9:27
  */
-
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-
-@TableName("college")
-public class College {
+@AllArgsConstructor
+@TableName("role_permission")
+public class RolePermission {
     @TableId(type = IdType.AUTO)
     private Integer id;
-    private String name;
+    private Integer roleId;
+    private Integer permissionId;
+
+
 }

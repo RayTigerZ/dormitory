@@ -1,0 +1,50 @@
+package com.ray.dormitory.service.impl;
+
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.ray.dormitory.bean.po.Building;
+import com.ray.dormitory.bean.po.Room;
+import com.ray.dormitory.mapper.BuildingMapper;
+import com.ray.dormitory.mapper.RoomMapper;
+import com.ray.dormitory.service.RoomService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+/**
+ * @author : Ray
+ * @date : 2019.11.22 23:41
+ */
+@Service
+public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements RoomService {
+    private static String buildingSuffix = "栋";
+
+    @Autowired
+    private BuildingMapper buildingMapper;
+
+    @Override
+    public List<Room> getRoomsOfFloor(int buildingId, String floor) {
+        if (floor.length() == 1) {
+            floor = "0" + floor;
+        }
+        return baseMapper.getRoomsOfFloor(buildingId, floor);
+    }
+
+    @Override
+    public boolean save(Room room) {
+        int roomCount = baseMapper.selectCount(new QueryWrapper<Room>().eq("number", room.getNumber()));
+        if (roomCount == 0) {
+            Building building = buildingMapper.selectOne(new QueryWrapper<Building>().eq("name", room.getBuildingId() + buildingSuffix));
+            if (building != null) {
+                room.setBuildingId(building.getId());
+                baseMapper.insert(room);
+            } else {
+                throw new NullPointerException("宿舍楼不存在");
+            }
+        } else {
+            throw new NullPointerException("房间号已经存在");
+        }
+        return true;
+    }
+}

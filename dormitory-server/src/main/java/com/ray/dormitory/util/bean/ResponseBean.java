@@ -1,11 +1,7 @@
-package com.ray.dormitory.bean;
+package com.ray.dormitory.util.bean;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
@@ -26,6 +22,16 @@ public class ResponseBean {
     public ResponseBean(int code, String msg) {
         this.code = code;
         this.msg = msg;
+    }
+
+    public ResponseBean(ErrorEnum errorEnum) {
+        this.code = errorEnum.getErrorCode();
+        this.msg = errorEnum.getErrorMsg();
+    }
+
+    public ResponseBean(Object data) {
+
+        this.data = data;
     }
 
 
