@@ -1,85 +1,38 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.ray.dormitory.mapper.UserMapper">
-
-    <resultMap id="userResultMap" type="com.ray.dormitory.bean.User">
+    <resultMap id="userResultMap" type="com.ray.dormitory.bean.po.User">
         <id property="id" column="id"/>
+        <result property="name" column="name"/>
         <result property="account" column="account"/>
         <result property="password" column="password"/>
-        <result property="name" column="name"/>
         <result property="salt" column="salt"/>
+        <result property="phone" column="phone"/>
+        <result property="email" column="email"/>
+        <result property="sex" column="sex"/>
+        <result property="cla" column="class"/>
+        <result property="college" column="college"/>
         <result property="isUsable" column="is_usable"/>
+        <collection property="roles" ofType="com.ray.dormitory.bean.po.Role">
+            <id property="id" column="id"/>
+            <result property="nameZh" column="name_zh"/>
+            <result property="name" column="name"/>
+            <result property="description" column="description"/>
+        </collection>
     </resultMap>
 
-    <resultMap id="role" type="com.ray.dormitory.bean.Role">
-        <id property="id" column="id"/>
-        <result property="name" column="name"/>
-        <result property="nameZh" column="name_zh"/>
-    </resultMap>
 
-    <resultMap id="permission" type="com.ray.dormitory.bean.Permission">
-        <id property="id" column="id"/>
-        <result property="url" column="url"/>
-        <result property="isUsable" column="is_usable"/>
-        <result property="name" column="name"/>
-    </resultMap>
-
-    <resultMap id="userMenu" type="com.ray.dormitory.bean.UserMenu">
-        <id property="id" column="id"/>
-        <result property="name" column="name"/>
-        <result property="code" column="code"/>
-        <result property="parentId" column="parent_id"/>
-        <result property="url" column="url"/>
-        <result property="type" column="type"/>
-        <result property="icon" column="icon"/>
-        <result property="permissionId" column="permission_id"/>
-    </resultMap>
-
-    <resultMap id="permissionRole" type="com.ray.dormitory.bean.PermissionRole">
-
-        <result property="permissionUrl" column="permissionUrl"/>
-        <result property="roleName" column="roleName"/>
-    </resultMap>
+    <update id="updatePsw">
+        update user set password=#{psw},salt=#{salt} where id=#{id}
+    </update>
 
 
     <select id="getUserByAccount" resultMap="userResultMap">
-        SELECT account,
-               password,
-               salt,
-               name,
-               is_usable
-        FROM user
+        SELECT u.*,r.*
+        FROM user u LEFT JOIN user_role ur on u.id=ur.user_id
+					LEFT JOIN role r on r.id=ur.role_id
         where account = #{account}
 
-    </select>
-
-
-    <select id="getUserPermissions" resultType="String">
-        SELECT url as permission
-        FROM user a
-                 LEFT JOIN user_role b
-                           on a.id = b.user_d
-                 LEFT JOIN role_permission c
-                           on b.role_id = c.role_id
-                 LEFT JOIN permission d
-                           on c.permission_id = d.id
-        WHERE a.account = #{account}
-          and d.url is not null
-    </select>
-
-
-    <select id="getAllRolesByPermission" resultMap="role">
-        SELECT a.url                                               as permissionUrl,
-               CONCAT(CONCAT('roles[', group_concat(c.name)), ']') as roleName,
-               a.name
-        from permission a
-                 left join role_permission b
-                           on a.id = b.permission_id
-                 left join role c
-                           on b.role_id = c.id
-        WHERE a.url is not NULL
-          and a.url != ''
-        GROUP BY a.url, a.name
     </select>
 
 

@@ -1,6 +1,6 @@
 package com.ray.dormitory.controller;
 
-import com.ray.dormitory.bean.Role;
+import com.ray.dormitory.bean.po.Role;
 import com.ray.dormitory.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,7 +12,7 @@ public class TestController {
     private RoleService roleService;
 
     @GetMapping(value = "/test")
-    public Role test(int id){
-       return roleService.getById(id);
+    public Role test(int id) {
+        return roleService.getById(id);
     }
 }

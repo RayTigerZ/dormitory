@@ -1,5 +1,9 @@
 package com.ray.dormitory.util.bean;
 
+/**
+ * @author Ray
+ */
+
 public enum ErrorEnum {
 
     ERROR_204(204, "请求处理异常"),

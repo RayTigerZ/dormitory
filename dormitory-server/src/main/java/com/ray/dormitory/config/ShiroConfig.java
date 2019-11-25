@@ -78,7 +78,7 @@ public class ShiroConfig {
          * http://shiro.apache.org/web.html#urls-
          */
         //shiroFilter.setFilterChainDefinitionMap(shiroService.getAllRolesByPermission());
-        Map<String, String> map = shiroService.getAllRolesByPermission();
+        Map<String, String> map = shiroService.getApiPermissionMap();
         factoryBean.setFilterChainDefinitionMap(map);
         return factoryBean;
     }

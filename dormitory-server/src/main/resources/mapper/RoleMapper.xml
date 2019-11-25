@@ -3,5 +3,7 @@
 <mapper namespace="com.ray.dormitory.mapper.RoleMapper">
 
 
-
+    <select id="getRoleOfUser" resultType="com.ray.dormitory.bean.po.Role">
+        select r.* from role where r.id in (select role_id from user_role where user_id=#{userId})
+    </select>
 </mapper>

@@ -1,14 +1,14 @@
 package com.ray.dormitory.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.ray.dormitory.bean.PermissionRole;
-import com.ray.dormitory.bean.User;
-import org.apache.ibatis.annotations.Mapper;
+import com.ray.dormitory.bean.po.User;
+import org.springframework.stereotype.Repository;
 
-import java.util.List;
-import java.util.Set;
-
-@Mapper
+/**
+ * @author Ray
+ * @date : 2019.11.21 13:21
+ */
+@Repository
 public interface UserMapper extends BaseMapper<User> {
     /**
      * 通过用户名获取用户基本信息
@@ -18,20 +18,16 @@ public interface UserMapper extends BaseMapper<User> {
      */
     User getUserByAccount(String account);
 
-    /**
-     * 通过用户ID获取该用户具有的权限
-     *
-     * @param account
-     * @return
-     */
-    Set<String> getUserPermissions(String account);
 
     /**
-     * 获取所有权限及对
+     * 更新用户密码
      *
+     * @param id   用户ID
+     * @param psw  新密码（加盐加密过后）
+     * @param salt 盐值
      * @return
      */
-    List<PermissionRole> getAllRolesByPermission();
+    int updatePsw(int id, String psw, String salt);
 
 
 }

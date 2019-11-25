@@ -1,7 +1,7 @@
 package com.ray.dormitory.config;
 
 import com.google.gson.Gson;
-import com.ray.dormitory.bean.ResponseBean;
+import com.ray.dormitory.util.bean.ResponseBean;
 import com.ray.dormitory.util.JwtUtil;
 import com.ray.dormitory.util.bean.ErrorEnum;
 import lombok.extern.slf4j.Slf4j;

@@ -161,6 +161,15 @@ public class JwtUtil {
         }
     }
 
+    public static int getId(String token) {
+        try {
+            DecodedJWT jwt = JWT.decode(token);
+            return jwt.getClaim("id").asInt();
+        } catch (JWTDecodeException e) {
+            return 0;
+        }
+    }
+
     /**
      * 获得token中的信息无需secret解密也能获得
      *

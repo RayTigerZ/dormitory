@@ -11,59 +11,65 @@ import org.springframework.beans.factory.annotation.Autowired;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 增加的这个Filter，用于记录请求的内容及时间
- * 原来的
+ * Aop Filter，用于记录请求的内容及时间等
+ * 会在 请求开始前 和 结束后 进行操作
  *
  * @author Ray
+ * @date 2019/11/23 15:15
  */
 
 @Slf4j
 public class SystemLogFilter extends AdviceFilter {
 
+    private final static String OPTIONS = "OPTIONS";
     @Autowired
     private SystemLogService systemLogService;
 
-    private final static String OPTIONS = "OPTIONS";
-
+    /**
+     * 前置处理
+     *
+     * @param servletRequest
+     * @param servletResponse
+     * @return
+     */
     @Override
     protected boolean preHandle(ServletRequest servletRequest, ServletResponse servletResponse) {
-        log.info("SystemLogFilter is into preHandle");
         servletRequest.setAttribute("startTime", System.currentTimeMillis());
-
         return true;
     }
 
+    /**
+     * 后置处理
+     *
+     * @param request
+     * @param response
+     */
     @Override
     protected void postHandle(ServletRequest request, ServletResponse response) {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
-        HttpServletResponse httpServletResponse = (HttpServletResponse) response;
 
-        String httpMethod = ((HttpServletRequest) request).getMethod();
+        String httpMethod = httpServletRequest.getMethod();
 
         //http预请求，不进行处理
         if (OPTIONS.equals(httpMethod)) {
             return;
         }
 
-        String requestUri = httpServletRequest.getRequestURI();//获取URI
-        String basePath = httpServletRequest.getContextPath();//获取basePath
-        if (null != requestUri && requestUri.startsWith(basePath)) {
-            requestUri = requestUri.replaceFirst(basePath, "");
-        }
+        //获取URI
+        String requestUri = httpServletRequest.getRequestURI();
 
-        log.info("SystemLogFilter postHandle request uri: {}", requestUri);
 
         long startTime = (Long) request.getAttribute("startTime");
         long endTime = System.currentTimeMillis();
-        long useTime = endTime - startTime; // log it
+        long useTime = endTime - startTime;
 
-        String remoteAddr = request.getRemoteAddr();//返回发出请求的IP地址
+        //返回发出请求的IP地址
+        String remoteAddr = request.getRemoteAddr();
 
         Map<String, Object> paramMap = new HashMap<>();
         Enumeration paramNames = httpServletRequest.getParameterNames();
@@ -88,9 +94,9 @@ public class SystemLogFilter extends AdviceFilter {
 
         String authorization = httpServletRequest.getHeader("Authorization");
         if (authorization != null) {
-            if (addAccount == null)//登录时，已经赋值了
-            {
-                addAccount = JwtUtil.getUsername(authorization);
+            //登录时，已经赋值了
+            if (addAccount == null) {
+                addAccount = JwtUtil.getAccount(authorization);
             }
 
         }

@@ -20,3 +20,10 @@ mybatis-plus:
   mapper-locations: classpath:/mapper/*Mapper.xml
   #实体扫描，多个package用逗号或者分号分隔
   typeAliasesPackage: com.ray.dormitory.bean
+
+mybatis:
+  # spring boot集成mybatis的方式打印sql
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+sys-config:
+  templatePath: D:/graduation-project/code/dormitory-server/src/main/resources/excel/

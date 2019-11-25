@@ -1,7 +1,9 @@
 package com.ray.dormitory.config;
 
 
-import com.ray.dormitory.bean.User;
+import com.ray.dormitory.bean.po.Role;
+import com.ray.dormitory.bean.po.User;
+import com.ray.dormitory.mapper.PermissionMapper;
 import com.ray.dormitory.service.UserService;
 import com.ray.dormitory.util.JwtUtil;
 import com.ray.dormitory.util.bean.JWTToken;
@@ -17,8 +19,14 @@ import org.apache.shiro.subject.PrincipalCollection;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
+/**
+ * @author Ray
+ * @date 2019/11/23 16:10
+ */
 @Slf4j
 @Component
 public class MyRealm extends AuthorizingRealm {
@@ -26,7 +34,8 @@ public class MyRealm extends AuthorizingRealm {
 
     @Autowired
     private UserService userService;
-
+    @Autowired
+    private PermissionMapper permissionMapper;
 
     /**
      * 大坑！，必须重写此方法，不然Shiro会报错
@@ -47,13 +56,15 @@ public class MyRealm extends AuthorizingRealm {
 
         SimpleAuthorizationInfo simpleAuthorizationInfo = new SimpleAuthorizationInfo();
 
+        List<Role> roles = user.getRoles();
+        Set<String> roleNames = new HashSet<>();
+        for (Role role : roles) {
+            roleNames.add(role.getName());
+        }
 
-        Set<String> roles = user.getRoles();
+        simpleAuthorizationInfo.addRoles(roleNames);
 
-        simpleAuthorizationInfo.addRoles(roles);
-
-
-        simpleAuthorizationInfo.addStringPermissions(userService.getUserPermission(account));
+        simpleAuthorizationInfo.addStringPermissions(permissionMapper.getApiPermissionsOfUser(user.getId()));
         return simpleAuthorizationInfo;
     }
 
