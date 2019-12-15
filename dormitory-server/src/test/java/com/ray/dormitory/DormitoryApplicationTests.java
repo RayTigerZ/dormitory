@@ -1,7 +1,9 @@
 package com.ray.dormitory;
 
+import com.ray.dormitory.mapper.RoomMapper;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.junit4.SpringRunner;
 
@@ -9,9 +11,12 @@ import org.springframework.test.context.junit4.SpringRunner;
 @SpringBootTest
 public class DormitoryApplicationTests {
 
+    @Autowired
+    private RoomMapper roomMapper;
+
     @Test
     public void contextLoads() {
-        System.out.println("test ");
+
     }
 
 }

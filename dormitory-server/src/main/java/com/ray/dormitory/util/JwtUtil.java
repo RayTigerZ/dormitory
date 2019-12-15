@@ -10,6 +10,10 @@ import com.auth0.jwt.interfaces.DecodedJWT;
 import java.util.Date;
 import java.util.Map;
 
+/**
+ * @author Ray
+ * @date 2019/12/04 15:38
+ */
 public class JwtUtil {
 
     /**
@@ -38,7 +42,7 @@ public class JwtUtil {
     }
 
     public static String getAccountTimeKey(String account) {
-        return SESSION_TIME_PREFIX + account;
+        return SESSION_USER_PREFIX + account;
     }
 
     public static String getAccountUserKey(String account) {

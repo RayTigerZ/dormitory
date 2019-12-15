@@ -6,7 +6,9 @@ package com.ray.dormitory.util.bean;
 
 public enum ErrorEnum {
 
-    ERROR_204(204, "请求处理异常"),
+    ERROR_204(202, "请求处理异常"),
+    BUILDING_NAME_EXIST(202, "楼宇名称已存在"),
+    CHILDREN_ORGANIZATION_EXIST(202, "该组织含有子组织，不允许删除"),
 
     ERROR_201(201, "账号权限不足"),
 

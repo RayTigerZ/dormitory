@@ -1,10 +1,9 @@
 package com.ray.dormitory.controller;
 
 import com.ray.dormitory.util.SysConfig;
-import lombok.Cleanup;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,12 +22,13 @@ import java.net.URLEncoder;
 public class DownloadController {
 
     private static String excelExtension = ".xlsx";
+    private static String excelContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
     @Autowired
     private SysConfig sysConfig;
 
-    @PostMapping("/batchExcel")
+    @GetMapping("/batchExcel")
     public void batchExcel(String code, HttpServletResponse response) {
-        String contentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;charset=UTF-8";
+
         try {
             String filename = code + excelExtension;
             String filePath = sysConfig.getTemplatePath() + filename;
@@ -38,27 +38,28 @@ public class DownloadController {
                 File file = new File(filePath);
                 // 如果文件存在，则进行下载
                 if (file.exists()) {
-                    // 配置文件下载
-                    response.setContentType(contentType);
+                    // 配置文件下载"application/octet-stream"
+//                    response.setContentType(excelContentType);
                     response.setHeader("fileName", URLEncoder.encode(filename, "UTF-8"));
                     response.addHeader("Access-Control-Expose-Headers", "fileName");
-                    // 下载文件能正常显示中文
-                    response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+
                     // 实现文件下载
-                    byte[] buffer = new byte[1024];
-
-                    @Cleanup
-                    FileInputStream fileInputStream = new FileInputStream(file);
-                    @Cleanup
-                    BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream);
-                    OutputStream outputStream = response.getOutputStream();
-                    int len;
-                    while ((len = bufferedInputStream.read(buffer)) != -1) {
-                        outputStream.write(buffer, 0, len);
-
+//                    byte[] bytes = FileUtil.fileToByte(filePath);
+                    InputStream fileInputStream = new FileInputStream(file);
+                    //response.setHeader("Content-length", String.valueOf(bytes.length));
+                    response.setHeader("Content-Disposition", "attachment;filename=" + URLEncoder.encode(filename, "UTF-8"));
+                    OutputStream out = response.getOutputStream();
+                    byte[] buff = new byte[1024 * 8];
+//                    out.write(bytes, 0, bytes.length);
+                    int len = 0;
+                    while ((len = fileInputStream.read(buff)) != -1) {
+                        out.write(buff, 0, len);
                     }
-                    outputStream.flush();
-                    outputStream.close();
+                    fileInputStream.close();
+                    out.flush();
+                    out.close();
+
+
                     log.info("download {} successfully!", filePath);
                 }
 

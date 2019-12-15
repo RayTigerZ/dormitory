@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ray.dormitory.mapper.QuestionnaireMapper">
+    <resultMap id="questionnaire" type="com.ray.dormitory.bean.po.Questionnaire">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <collection property="questions" ofType="com.ray.dormitory.bean.po.Question" select="getQuestions"
+                    column="id">
+
+        </collection>
+    </resultMap>
+
+    <resultMap id="question" type="com.ray.dormitory.bean.po.Question">
+        <id column="id" property="id"/>
+        <result column="title" property="title"/>
+        <collection property="options" ofType="com.ray.dormitory.bean.po.Option" select="getOptions" column="id"/>
+    </resultMap>
+
+    <select id="selectList" resultMap="questionnaire">
+        select  * from questionnaire ${ew.customSqlSegment}
+    </select>
+
+    <select id="getQuestions" resultMap="question">
+        select  * from question where questionnaire_id=#{id}
+    </select>
+
+    <select id="getOptions" resultType="com.ray.dormitory.bean.po.Option">
+        select  * from `option` where question_id=#{id} order by `value`
+    </select>
+</mapper>

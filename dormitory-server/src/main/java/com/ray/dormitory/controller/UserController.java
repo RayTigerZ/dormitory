@@ -4,34 +4,37 @@ import com.alibaba.excel.EasyExcel;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.gson.Gson;
+import com.ray.dormitory.bean.po.Role;
 import com.ray.dormitory.bean.po.User;
 import com.ray.dormitory.service.RedisService;
 import com.ray.dormitory.service.UserService;
 import com.ray.dormitory.util.JwtUtil;
 import com.ray.dormitory.util.UploadDataListener;
-import com.ray.dormitory.util.bean.ErrorEnum;
 import com.ray.dormitory.util.bean.MD5Util;
 import com.ray.dormitory.util.bean.ResponseBean;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 
 /**
  * @author Ray
+ * @date 2019/12/04 11:11
  */
 @Slf4j
 @RestController
@@ -44,7 +47,7 @@ public class UserController {
 
 
     @PostMapping("/login")
-    public ResponseBean login(String account, String password) {
+    public ResponseBean login(@RequestParam String account, @RequestParam String password) {
         try {
             User user = userService.getUserByAccount(account);
             log.info("{}", user);
@@ -66,14 +69,14 @@ public class UserController {
                         .withClaim("password", user.getPassword())
                         .withClaim("salt", user.getSalt())
                         .withClaim("isUsable", user.getIsUsable())
-                        .withClaim("roles", user.getRoles().toString())
+                        .withClaim("roles", new Gson().toJson(user.getRoles()))
                         .sign(algorithm);
 
                 redisService.remove(JwtUtil.getAccountUserKey(account));
                 redisService.set(JwtUtil.getAccountUserKey(account), token);
                 //记录用户的登录时间
                 redisService.set(JwtUtil.getAccountTimeKey(account), String.valueOf(System.currentTimeMillis()));
-                Map<String, String> map = new HashMap<>();
+                Map<String, String> map = new HashMap<>(2);
                 map.put("token", token);
                 map.put("name", user.getName());
 
@@ -104,47 +107,68 @@ public class UserController {
             redisService.remove(JwtUtil.getAccountTimeKey(account));
             return new ResponseBean(200, "退出登录成功");
         } catch (Exception e) {
+            log.error(e.getMessage());
             return new ResponseBean(200, "退出登录失败：" + e.getMessage());
         }
     }
 
 
     @GetMapping("/list")
-    public ResponseBean userPage(Integer roleId, String account, int pageNum, int pageSize) {
-        try {
-            IPage<User> page = new Page<>(pageNum, pageSize);
-            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-            if (StringUtils.isNotBlank(account)) {
-                queryWrapper.like("account", account);
-            }
-            if (roleId != null) {
-                queryWrapper.inSql("id", "select user_id from user_role where role_id=" + roleId);
-            }
+    public IPage<User> userPage(Integer roleId, String account, @RequestParam(defaultValue = "1") int pageNum, @RequestParam(defaultValue = "10") int pageSize, Integer[] classId) {
 
-            return new ResponseBean(userService.page(page, queryWrapper));
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseBean(ErrorEnum.ERROR_204);
-        }
+        IPage<User> page = new Page<>(pageNum, pageSize);
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+
+        queryWrapper.like(StringUtils.isNotBlank(account), "account", account)
+                .inSql(roleId != null, "user.id", "select user_id from user_role where role_id='" + roleId + "'")
+                .in(classId != null, "class_id", classId);
+
+        return userService.page(page, queryWrapper);
+
+
     }
 
 
     @PostMapping("/editPsw")
-    public ResponseBean editPsw(HttpServletRequest request, String oldPsw, String newPsw) {
-        try {
-            String token = request.getHeader("Authorization");
-            String account = JwtUtil.getAccount(token);
-            userService.updatePassword(account, newPsw, oldPsw);
-            return new ResponseBean();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseBean(ErrorEnum.ERROR_204.getErrorCode(), e.getMessage());
-        }
+    public boolean editPsw(HttpServletRequest request, String oldPsw, String newPsw) {
+
+        String token = request.getHeader("Authorization");
+        String account = JwtUtil.getAccount(token);
+        return userService.updatePassword(account, newPsw, oldPsw);
+
+
     }
 
-    @PostMapping("/uploadBatch")
-    public String upload(MultipartFile file) throws IOException {
-        EasyExcel.read(file.getInputStream(), User.class, new UploadDataListener(userService)).sheet().doRead();
-        return "success";
+    @PostMapping("/batchSave")
+    public boolean batchSave(MultipartFile file, String time) throws IOException {
+
+        EasyExcel.read(file.getInputStream(), User.class, new UploadDataListener(userService, time)).sheet().doRead();
+        return true;
+
+
     }
+
+    @PostMapping("/save")
+    public boolean save(User user, Integer[] roleId) {
+
+        List<Role> roleList = new ArrayList<>();
+        for (int rid : roleId) {
+            Role role = new Role();
+            role.setId(rid);
+            roleList.add(role);
+        }
+        user.setRoles(roleList);
+
+        return userService.saveOrUpdate(user);
+
+    }
+
+    @PostMapping("/enable")
+    public boolean enable(@NonNull Integer id) {
+        UpdateWrapper<User> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.eq("id", id).setSql("is_usable=!is_usable");
+        return userService.update(updateWrapper);
+    }
+
+
 }

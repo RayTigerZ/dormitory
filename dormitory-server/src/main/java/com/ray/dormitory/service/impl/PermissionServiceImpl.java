@@ -8,7 +8,8 @@ import com.ray.dormitory.mapper.PermissionMapper;
 import com.ray.dormitory.mapper.RolePermissionMapper;
 import com.ray.dormitory.service.PermissionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Repository;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
 import java.util.Iterator;
@@ -19,7 +20,8 @@ import java.util.Map;
  * @author : Ray
  * @date : 2019.11.21 12:46
  */
-@Repository
+@Service
+@Transactional(rollbackFor = Exception.class)
 public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permission> implements PermissionService {
 
     @Autowired
@@ -34,21 +36,22 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     }
 
     private Permission formatMenu(List<Permission> permissions) {
-        Map<String, Permission> menuMap = new HashMap<>();
+        Map<Integer, Permission> menuMap = new HashMap<>(16);
         for (Permission permission : permissions) {
-            menuMap.put(String.valueOf(permission.getId()), permission);
+            menuMap.put(permission.getId(), permission);
         }
 
-        Iterator<Map.Entry<String, Permission>> it = menuMap.entrySet().iterator();
+        Iterator<Map.Entry<Integer, Permission>> it = menuMap.entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry<String, Permission> entry = it.next();
-            Integer parentId = entry.getValue().getParentId();
+            Permission permission = it.next().getValue();
+            System.out.println(permission);
+            Integer parentId = permission.getParentId();
             if (parentId != null) {
-                menuMap.get(String.valueOf(parentId)).addChild(entry.getValue());
+                menuMap.get(parentId).addChild(permission);
             }
         }
 
-        Permission permission = menuMap.get("1");
+        Permission permission = menuMap.get(1);
         //除去无子树的节点，叶子节点除外
 
         return permission;
@@ -76,7 +79,7 @@ public class PermissionServiceImpl extends ServiceImpl<PermissionMapper, Permiss
     }
 
     @Override
-    public boolean setPermissionForRole(int roleId, int[] permissionIds) {
+    public boolean setPermissionForRole(Integer roleId, Integer[] permissionIds) {
         rolePermissionMapper.delete(new UpdateWrapper<RolePermission>().ge("role_id", roleId));
 
         for (int permissionId : permissionIds) {

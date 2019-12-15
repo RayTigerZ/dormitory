@@ -4,8 +4,6 @@ import com.alibaba.excel.EasyExcel;
 import com.ray.dormitory.bean.po.Room;
 import com.ray.dormitory.service.RoomService;
 import com.ray.dormitory.util.UploadDataListener;
-import com.ray.dormitory.util.bean.ErrorEnum;
-import com.ray.dormitory.util.bean.ResponseBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -14,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author : Ray
@@ -26,19 +25,23 @@ public class RoomController {
     private RoomService roomService;
 
     @GetMapping("/ofFloor")
-    public ResponseBean getFloor(int buildingId, String floor) {
-        return new ResponseBean(roomService.getRoomsOfFloor(buildingId, floor));
+    public List<Room> getFloor(int buildingId, String floor) {
+        return roomService.getRoomsOfFloor(buildingId, floor);
+    }
+
+    @PostMapping("/save")
+    public boolean save(Room room) {
+
+        return roomService.saveOrUpdate(room);
+
+
     }
 
     @PostMapping("/uploadBatch")
-    public ResponseBean uploadBatch(MultipartFile file) throws IOException {
-        try {
-            EasyExcel.read(file.getInputStream(), Room.class, new UploadDataListener(roomService)).sheet().doRead();
-            return new ResponseBean();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ResponseBean(ErrorEnum.ERROR_204);
-        }
+    public boolean uploadBatch(MultipartFile file, String time) throws IOException {
+
+        EasyExcel.read(file.getInputStream(), Room.class, new UploadDataListener(roomService, time)).sheet().doRead();
+        return true;
 
     }
 }

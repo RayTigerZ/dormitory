@@ -11,7 +11,7 @@
                     from role_permission where role_id in(
                         select role_id from user_role WHERE user_id=#{userId}
                     )
-            )
+            ) order by `order`
     </select>
 
 

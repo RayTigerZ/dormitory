@@ -12,4 +12,6 @@ import java.util.List;
  */
 public interface BuildingService extends IService<Building> {
     List<Floor> getFloors(int buildingId);
+
+    void testTx();
 }

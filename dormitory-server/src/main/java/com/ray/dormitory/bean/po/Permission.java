@@ -30,6 +30,8 @@ public class Permission {
     private Integer parentId;
     private boolean keepAlive;
     private boolean requireAuth;
+    @TableField("`order`")
+    private int order;
 
     @TableField(exist = false)
     private List<Role> roles;

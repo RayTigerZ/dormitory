@@ -30,6 +30,10 @@ public class SystemLogFilter extends AdviceFilter {
     @Autowired
     private SystemLogService systemLogService;
 
+    public SystemLogFilter(SystemLogService systemLogService) {
+        this.systemLogService = systemLogService;
+    }
+
     /**
      * 前置处理
      *
@@ -62,7 +66,9 @@ public class SystemLogFilter extends AdviceFilter {
 
         //获取URI
         String requestUri = httpServletRequest.getRequestURI();
-
+        if (requestUri.startsWith("/druid")) {
+            return;
+        }
 
         long startTime = (Long) request.getAttribute("startTime");
         long endTime = System.currentTimeMillis();

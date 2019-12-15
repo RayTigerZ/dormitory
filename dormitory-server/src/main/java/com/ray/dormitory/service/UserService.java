@@ -23,6 +23,5 @@ public interface UserService extends IService<User> {
      * @param oldPsw
      * @param newPsw
      */
-
-    void updatePassword(String account, String oldPsw, String newPsw);
+    boolean updatePassword(String account, String oldPsw, String newPsw);
 }

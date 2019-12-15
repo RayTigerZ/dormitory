@@ -1,4 +1,4 @@
-package com.ray.dormitory.config;
+package com.ray.dormitory.config.shiro;
 
 
 import com.ray.dormitory.bean.po.Role;
@@ -6,7 +6,7 @@ import com.ray.dormitory.bean.po.User;
 import com.ray.dormitory.mapper.PermissionMapper;
 import com.ray.dormitory.service.UserService;
 import com.ray.dormitory.util.JwtUtil;
-import com.ray.dormitory.util.bean.JWTToken;
+import com.ray.dormitory.util.bean.WebToken;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.authc.AuthenticationException;
 import org.apache.shiro.authc.AuthenticationInfo;
@@ -42,7 +42,7 @@ public class MyRealm extends AuthorizingRealm {
      */
     @Override
     public boolean supports(AuthenticationToken token) {
-        return token instanceof JWTToken;
+        return token instanceof WebToken;
     }
 
     /**

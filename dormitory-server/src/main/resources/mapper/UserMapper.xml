@@ -10,14 +10,15 @@
         <result property="phone" column="phone"/>
         <result property="email" column="email"/>
         <result property="sex" column="sex"/>
-        <result property="cla" column="class"/>
-        <result property="college" column="college"/>
+        <result property="classId" column="class_id"/>
+
         <result property="isUsable" column="is_usable"/>
-        <collection property="roles" ofType="com.ray.dormitory.bean.po.Role">
-            <id property="id" column="id"/>
-            <result property="nameZh" column="name_zh"/>
-            <result property="name" column="name"/>
-            <result property="description" column="description"/>
+
+        <result property="college" column="college"/>
+        <result property="cla" column="class"/>
+        <collection property="roles" ofType="com.ray.dormitory.bean.po.Role"
+                    select="com.ray.dormitory.mapper.RoleMapper.getRoleOfUser" column="id">
+
         </collection>
     </resultMap>
 
@@ -33,6 +34,14 @@
 					LEFT JOIN role r on r.id=ur.role_id
         where account = #{account}
 
+    </select>
+    <select id="getPage" resultMap="userResultMap">
+        select user.*,class.name class,college.name college from user
+            left join organization class on user.class_id=class.id
+            left join organization major on class.parent_id=major.id
+            left join organization college on major.parent_id=college.id
+            ${ew.customSqlSegment}
+            limit #{start},#{size}
     </select>
 
 

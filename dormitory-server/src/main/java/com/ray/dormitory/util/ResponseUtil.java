@@ -2,30 +2,31 @@ package com.ray.dormitory.util;
 
 import com.google.gson.Gson;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.PrintWriter;
 
+/**
+ * @author Ray
+ * @date 2019/12/09 18:57
+ */
 public class ResponseUtil {
-    public static String getContent(HttpServletResponse response) {
-        return null;
 
-    }
-
-    public static void writeJson(HttpServletResponse response, Object object) {
+    public static void sendJson(HttpServletRequest request, HttpServletResponse response, Object object) {
 
         try {
             response.setCharacterEncoding("UTF-8");
             PrintWriter printWriter = response.getWriter();
-            String jsonStr = new Gson().toJson(object);
-
 
             response.setContentType("application/json;charset=UTF-8");
-            //servletResponse.setHeader("Access-Control-Allow-Origin", servletRequest.getHeader("Origin"));
+            response.setHeader("Access-Control-Allow-Origin", request.getHeader("Origin"));
             response.setHeader("Access-Control-Allow-Credentials", "true");
             response.setHeader("Vary", "Origin");
-            response.setHeader("content-Length", String.valueOf(jsonStr.getBytes().length));
+            String jsonStr = new Gson().toJson(object);
+
             printWriter.write(jsonStr);
+            response.setHeader("content-Length", String.valueOf(jsonStr.getBytes().length));
             printWriter.flush();
 
         } catch (IOException e) {
@@ -33,6 +34,9 @@ public class ResponseUtil {
 
         }
 
+    }
+
+    public static void sendFile(HttpServletRequest request, HttpServletResponse response, String filePath, String fileName) {
 
     }
 }

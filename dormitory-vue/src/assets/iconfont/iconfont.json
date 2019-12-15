@@ -11,6 +11,34 @@
       "font_class": "danjianchuangwei",
       "unicode": "e62a",
       "unicode_decimal": 58922
+    },
+    {
+      "icon_id": "2632772",
+      "name": "宿舍",
+      "font_class": "sushe",
+      "unicode": "e60f",
+      "unicode_decimal": 58895
+    },
+    {
+      "icon_id": "7968232",
+      "name": "退出全屏",
+      "font_class": "tuichuquanping",
+      "unicode": "e62c",
+      "unicode_decimal": 58924
+    },
+    {
+      "icon_id": "8237328",
+      "name": "全屏",
+      "font_class": "quanping",
+      "unicode": "e7e0",
+      "unicode_decimal": 59360
+    },
+    {
+      "icon_id": "9602887",
+      "name": "宿舍管理系统",
+      "font_class": "susheguanlixitong",
+      "unicode": "e6ac",
+      "unicode_decimal": 59052
     }
   ]
 }

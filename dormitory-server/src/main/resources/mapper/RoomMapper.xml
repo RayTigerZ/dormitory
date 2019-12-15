@@ -14,8 +14,10 @@
         </collection>
     </resultMap>
     <select id="getRoomsOfFloor" resultMap="roomResultMap">
-        select r.*,u.account,u.name,u.class
-            from room r left join user u on r.id=u.room_id
+        select r.*,u.account,u.name,o.name class
+            from room r
+            left join user u on r.id=u.room_id
+            left join organization o on u.class_id=o.id
             where r.building_id=#{buildingId} and substring(r.number, 3, 2)=#{floor}
     </select>
 </mapper>

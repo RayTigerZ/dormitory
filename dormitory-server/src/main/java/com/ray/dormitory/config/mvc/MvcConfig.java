@@ -1,4 +1,4 @@
-package com.ray.dormitory.config;
+package com.ray.dormitory.config.mvc;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.ByteArrayHttpMessageConverter;
@@ -15,9 +15,15 @@ import java.util.List;
  */
 @Configuration
 public class MvcConfig extends WebMvcConfigurationSupport {
+
+    /**
+     * 配置跨域
+     *
+     * @param registry
+     */
+
     @Override
-    //配置跨域
-    protected void addCorsMappings(CorsRegistry registry) {
+    public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
                 .allowedOrigins("*")
                 .allowedMethods("GET", "POST", "DELETE", "PUT")

@@ -1,16 +1,22 @@
 package com.ray.dormitory.util;
 
+import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.ray.dormitory.websocket.WebSocketServer;
 import lombok.extern.slf4j.Slf4j;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author : Ray
  * @date : 2019.11.20 23:14
  * 模板的读取类
- * 有个很重要的点 DemoDataListener 不能被spring管理，
- * 要每次读取excel都要new,然后里面用到spring可以构造方法传进去
+ * 有个很重要的点 UploadDataListener 不能被Spring管理，
+ * 要每次读取excel都要new,然后里面用到Spring可以构造方法传进去
  */
 
 
@@ -23,6 +29,12 @@ public class UploadDataListener<T> extends AnalysisEventListener<T> {
     private static final int BATCH_COUNT = 5;
 
     /**
+     * 记录保存数据时的错误信息
+     */
+    private List<String> errorMsgs;
+    private String time;
+
+    /**
      * 假设这个是一个DAO，当然有业务逻辑这个也可以是一个service。当然如果不用存储这个对象没用。
      */
     private IService<T> baseService;
@@ -33,8 +45,10 @@ public class UploadDataListener<T> extends AnalysisEventListener<T> {
      *
      * @param baseService
      */
-    public UploadDataListener(IService baseService) {
+    public UploadDataListener(IService baseService, String time) {
         this.baseService = baseService;
+        this.time = time;
+        errorMsgs = new ArrayList<>();
     }
 
     /**
@@ -69,14 +83,50 @@ public class UploadDataListener<T> extends AnalysisEventListener<T> {
      * 加上存储数据库
      */
     private void saveData(T data) {
+        String msg;
         try {
             baseService.save(data);
+
             log.info("存储数据库成功！");
         } catch (Exception e) {
-            e.printStackTrace();
-            log.error(e.getMessage());
+            msg = "数据：[" + getData(data) + "]\n错误信息:" + e.getMessage();
+            errorMsgs.add(msg);
+
+            log.error("data:{}, cause:{}", data, e.getMessage());
+            WebSocketServer.sendInfo(msg, time);
         }
 
 
+    }
+
+
+    private String getData(T data) {
+        StringBuffer buffer = new StringBuffer();
+        Field[] fields = data.getClass().getDeclaredFields();
+        int index = 0;
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(ExcelProperty.class)) {
+                field.setAccessible(true);
+                try {
+                    if (index > 0) {
+                        buffer.append("，");
+                    }
+                    String[] name = field.getAnnotation(ExcelProperty.class).value();
+
+                    Object value = field.get(data);
+                    buffer.append(name[0]).append("：").append(value);
+                    index++;
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+
+        }
+        return buffer.toString();
+    }
+
+
+    public List<String> getErrorMsgs() {
+        return this.errorMsgs;
     }
 }

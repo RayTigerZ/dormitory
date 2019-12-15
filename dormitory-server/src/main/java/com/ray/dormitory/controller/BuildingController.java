@@ -1,17 +1,14 @@
 package com.ray.dormitory.controller;
 
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.ray.dormitory.bean.bo.Floor;
 import com.ray.dormitory.bean.po.Building;
 import com.ray.dormitory.service.BuildingService;
-import com.ray.dormitory.util.bean.ErrorEnum;
-import com.ray.dormitory.util.bean.ResponseBean;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author : Ray
@@ -24,34 +21,30 @@ public class BuildingController {
     private BuildingService buildingService;
 
     @GetMapping("/list")
-    public ResponseBean getList(Integer pageNum, Integer pageSize) {
-        if (pageNum == null || pageSize == null) {
-            return new ResponseBean(buildingService.list());
-        } else {
-            IPage<Building> page = new Page<>(pageNum, pageSize);
+    public IPage<Building> getList(@RequestParam(defaultValue = "1") Integer pageNum, @RequestParam(defaultValue = "10") Integer pageSize) {
 
-            return new ResponseBean(buildingService.page(page));
-        }
+        IPage<Building> page = new Page<>(pageNum, pageSize);
+        return buildingService.page(page);
+
     }
 
     @PostMapping("/save")
-    public ResponseBean save(Building building) {
-        String name = building.getName();
-        int count = buildingService.count(new QueryWrapper<Building>().eq("name", name));
-        if (count == 0) {
-            buildingService.save(building);
-            return new ResponseBean();
-        } else {
-            return new ResponseBean(ErrorEnum.ERROR_204.getErrorCode(), "楼宇名称重复");
-        }
+    public boolean save(Building building) {
+
+        return buildingService.save(building);
 
     }
 
     @GetMapping("/floors")
-    public ResponseBean floors(int buildingId) {
-        return new ResponseBean(buildingService.getFloors(buildingId));
+    public List<Floor> floors(int buildingId) {
+        return buildingService.getFloors(buildingId);
 
+    }
 
+    @PostMapping("/test")
+    public boolean test() {
+        buildingService.testTx();
+        return true;
     }
 
 

@@ -9,6 +9,7 @@ import com.ray.dormitory.mapper.RoomMapper;
 import com.ray.dormitory.service.RoomService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -17,6 +18,7 @@ import java.util.List;
  * @date : 2019.11.22 23:41
  */
 @Service
+@Transactional(rollbackFor = Exception.class)
 public class RoomServiceImpl extends ServiceImpl<RoomMapper, Room> implements RoomService {
     private static String buildingSuffix = "栋";
 

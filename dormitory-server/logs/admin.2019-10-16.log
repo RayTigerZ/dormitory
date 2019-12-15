@@ -5,7 +5,7 @@
 2019-10-16 23:11:39.321 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Multiple Spring Data modules found, entering strict repository configuration mode!
 2019-10-16 23:11:39.326 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Bootstrapping Spring Data repositories in DEFAULT mode.
 2019-10-16 23:11:39.382 [restartedMain] INFO  o.s.d.r.config.RepositoryConfigurationDelegate - Finished Spring Data repository scanning in 33ms. Found 0 repository interfaces.
-2019-10-16 23:11:39.790 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'shiroConfig' of type [com.ray.dormitory.config.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-16 23:11:39.790 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'shiroConfig' of type [com.ray.dormitory.config.shiro.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:39.886 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'mybatis-plus-com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties' of type [com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:39.894 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration' of type [com.baomidou.mybatisplus.autoconfigure.MybatisPlusAutoConfiguration$$EnhancerBySpringCGLIB$$217a4be9] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:39.896 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Hikari' of type [org.springframework.boot.autoconfigure.jdbc.DataSourceConfiguration$Hikari$$EnhancerBySpringCGLIB$$2431493c] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
@@ -19,10 +19,10 @@
 2019-10-16 23:11:41.093 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'userMapper' of type [org.mybatis.spring.mapper.MapperFactoryBean] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:41.096 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'userMapper' of type [com.sun.proxy.$Proxy59] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:41.098 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'userService' of type [com.ray.dormitory.service.impl.UserServiceImpl] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
-2019-10-16 23:11:41.098 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'myRealm' of type [com.ray.dormitory.config.MyRealm] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-16 23:11:41.098 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'myRealm' of type [com.ray.dormitory.config.shiro.MyRealm] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:43.593 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'securityManager' of type [org.apache.shiro.web.mgt.DefaultWebSecurityManager] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:43.597 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'shiroService' of type [com.ray.dormitory.service.ShiroService] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
-2019-10-16 23:11:43.603 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'rolesAuthorizationFilter' of type [com.ray.dormitory.config.CustomRolesAuthorizationFilter] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
+2019-10-16 23:11:43.603 [restartedMain] INFO  o.s.c.s.PostProcessorRegistrationDelegate$BeanPostProcessorChecker - Bean 'rolesAuthorizationFilter' of type [com.ray.dormitory.config.shiro.CustomRolesAuthorizationFilter] is not eligible for getting processed by all BeanPostProcessors (for example: not eligible for auto-proxying)
 2019-10-16 23:11:43.746 [restartedMain] WARN  o.s.b.w.s.c.AnnotationConfigServletWebServerApplicationContext - Exception encountered during context initialization - cancelling refresh attempt: org.springframework.beans.factory.BeanCreationException: Error creating bean with name 'shiroFilter' defined in class path resource [com/ray/dormitory/config/ShiroConfig.class]: Bean instantiation via factory method failed; nested exception is org.springframework.beans.BeanInstantiationException: Failed to instantiate [org.apache.shiro.spring.web.ShiroFilterFactoryBean]: Factory method 'factory' threw exception; nested exception is org.springframework.jdbc.BadSqlGrammarException: 
 ### Error querying database.  Cause: com.mysql.jdbc.exceptions.jdbc4.MySQLSyntaxErrorException: Unknown column 'a.name' in 'field list'
 ### The error may exist in file [H:\毕业设计\dormitory_server\target\classes\mapper\UserMapper.xml]
@@ -100,12 +100,12 @@ Caused by: org.springframework.jdbc.BadSqlGrammarException:
 	at com.baomidou.mybatisplus.core.override.MybatisMapperProxy.invoke(MybatisMapperProxy.java:61)
 	at com.sun.proxy.$Proxy59.getAllRolesByPermission(Unknown Source)
 	at com.ray.dormitory.service.ShiroService.getAllRolesByPermission(ShiroService.java:43)
-	at com.ray.dormitory.config.ShiroConfig.factory(ShiroConfig.java:76)
-	at com.ray.dormitory.config.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695.CGLIB$factory$0(<generated>)
-	at com.ray.dormitory.config.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695$$FastClassBySpringCGLIB$$dab8df16.invoke(<generated>)
+	at com.ray.dormitory.config.shiro.ShiroConfig.factory(ShiroConfig.java:76)
+	at com.ray.dormitory.config.shiro.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695.CGLIB$factory$0(<generated>)
+	at com.ray.dormitory.config.shiro.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695$$FastClassBySpringCGLIB$$dab8df16.invoke(<generated>)
 	at org.springframework.cglib.proxy.MethodProxy.invokeSuper(MethodProxy.java:244)
 	at org.springframework.context.annotation.ConfigurationClassEnhancer$BeanMethodInterceptor.intercept(ConfigurationClassEnhancer.java:363)
-	at com.ray.dormitory.config.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695.factory(<generated>)
+	at com.ray.dormitory.config.shiro.ShiroConfig$$EnhancerBySpringCGLIB$$8e1c3695.factory(<generated>)
 	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
 	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
 	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)

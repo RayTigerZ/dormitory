@@ -1,8 +1,13 @@
 package com.ray.dormitory.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.ray.dormitory.bean.po.User;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
 
 /**
  * @author Ray
@@ -17,6 +22,8 @@ public interface UserMapper extends BaseMapper<User> {
      * @return
      */
     User getUserByAccount(String account);
+
+    List<User> getPage(long start, long size, @Param(Constants.WRAPPER) Wrapper<User> queryWrapper);
 
 
     /**

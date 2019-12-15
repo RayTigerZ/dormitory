@@ -1,8 +1,9 @@
 package com.ray.dormitory.service;
 
 
-import com.ray.dormitory.bean.po.Permission;
+import com.ray.dormitory.bean.po.Operation;
 import com.ray.dormitory.bean.po.Role;
+import com.ray.dormitory.mapper.OperationMapper;
 import com.ray.dormitory.mapper.PermissionMapper;
 import com.ray.dormitory.service.impl.SystemLogServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -28,16 +29,22 @@ public class ShiroService {
 
     @Autowired
     private PermissionMapper permissionMapper;
+    @Autowired
+    private OperationMapper operationMapper;
 
-    //获取所有权限对应的角色，用于shiro动态权限加载
+    /**
+     * 获取所有后端API对应的角色name，用于shiro动态权限加载
+     *
+     * @return
+     */
+
     public Map<String, String> getApiPermissionMap() {
         Map<String, String> apiPermissionMap = new LinkedHashMap<>();
 
         // 所有请求通过我们自己的JWT Filter
         apiPermissionMap.put("/user/login", "anon");
-        apiPermissionMap.put("/logout", "anon");
-        apiPermissionMap.put("/test", "jwt");
-        apiPermissionMap.put("/token", "anon");
+        apiPermissionMap.put("/user/logout", "jwt");
+
         apiPermissionMap.put("/shiro/updatePermission", "anon");
         //门户获取系统数据
         apiPermissionMap.put("/portal/portal/**", "anon");
@@ -46,38 +53,45 @@ public class ShiroService {
         // 访问401和404页面不通过我们的Filter
         apiPermissionMap.put("/401", "anon");
         apiPermissionMap.put("/500", "anon");
-        //门户数据上报
-        apiPermissionMap.put("/portal/mhDataUpload/**", "jwt");
-        apiPermissionMap.put("/admin/**", "jwt");
 
-        apiPermissionMap.put("/getUser", "jwt");
 
-        List<Permission> permissionList = permissionMapper.getApiPermissionList();
-        log.info("{}", permissionList);
-        Map<String, String> operateType = new HashMap<>();
-        for (Permission permission : permissionList) {
-            String format = "roles[%s]";
+        List<Operation> operations = operationMapper.getApiPermission();
+
+
+        log.info("apiPermission: {}", operations);
+        Map<String, String> operateType = new HashMap<>(16);
+        String format = "roles[%s]";
+        for (Operation operation : operations) {
+
             StringBuffer stringBuffer = new StringBuffer("");
             int index = 0;
-            List<Role> roles = permission.getRoles();
+            List<Role> roles = operation.getRoleList();
             if (roles != null && roles.size() > 0) {
                 for (Role role : roles) {
                     if (index > 0) {
-                        stringBuffer.append(",").append(role.getName());
+                        stringBuffer.append(",");
                     }
+                    stringBuffer.append(role.getName());
                     index++;
                 }
             }
 
-            operateType.put(permission.getPath(), String.format(format, stringBuffer.toString()));
+            operateType.put(operation.getUri() + "::" + operation.getMethod(), operation.getOpName());
+            //需要角色认证的uri也需要jwt认证
+            apiPermissionMap.put(operation.getUri() + "::" + operation.getMethod(), "jwt," + String.format(format, stringBuffer.toString()));
         }
         SystemLogServiceImpl.setOperateType(operateType);
 
-        log.info(apiPermissionMap.toString());
+        log.info("{}", apiPermissionMap);
         return apiPermissionMap;
     }
 
-    //更新权限信息
+    /**
+     * 更新权限信息
+     *
+     * @param shiroFilterFactoryBean
+     */
+
     public void updatePermission(ShiroFilterFactoryBean shiroFilterFactoryBean) {
         synchronized (shiroFilterFactoryBean) {
             AbstractShiroFilter shiroFilter = null;
@@ -102,7 +116,7 @@ public class ShiroService {
                 manager.createChain(url, chainDefinition);
             }
 
-            System.out.println("更新权限成功！！");
+            log.info("更新权限成功！！");
         }
     }
 }

@@ -1,8 +1,15 @@
 package com.ray.dormitory.util.bean;
 
 
+import com.ray.dormitory.exception.CustomException;
 import lombok.*;
 
+/**
+ * @author Ray
+ * @date 2019/12/03 19:23
+ * <p>
+ * http response的统一返回格式
+ */
 @Getter
 @Setter
 @ToString
@@ -10,13 +17,19 @@ import lombok.*;
 @AllArgsConstructor
 public class ResponseBean {
 
-    // http 状态码
+    /**
+     * 状态码
+     */
     private int code = 200;
 
-    // 返回信息
+    /**
+     * 返回的信息
+     */
     private String msg = "操作成功";
 
-    // 返回的数据
+    /**
+     * 返回的数据
+     */
     private Object data;
 
     public ResponseBean(int code, String msg) {
@@ -29,8 +42,12 @@ public class ResponseBean {
         this.msg = errorEnum.getErrorMsg();
     }
 
-    public ResponseBean(Object data) {
+    public ResponseBean(CustomException e) {
+        this.code = e.getCode();
+        this.msg = e.getMsg();
+    }
 
+    public ResponseBean(Object data) {
         this.data = data;
     }
 

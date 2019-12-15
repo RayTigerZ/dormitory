@@ -40,5 +40,5 @@ public interface PermissionService extends IService<Permission> {
      * @param permissionIds
      * @return
      */
-    boolean setPermissionForRole(int roleId, int[] permissionIds);
+    boolean setPermissionForRole(Integer roleId, Integer[] permissionIds);
 }

@@ -1,6 +1,9 @@
-package com.ray.dormitory.config;
+package com.ray.dormitory.config.shiro;
 
+import com.ray.dormitory.config.SystemLogFilter;
+import com.ray.dormitory.service.RedisService;
 import com.ray.dormitory.service.ShiroService;
+import com.ray.dormitory.service.SystemLogService;
 import org.apache.shiro.mgt.DefaultSessionStorageEvaluator;
 import org.apache.shiro.mgt.DefaultSubjectDAO;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
@@ -42,21 +45,9 @@ public class ShiroConfig {
     }
 
 
-    @Bean
-    public CustomRolesAuthorizationFilter rolesAuthorizationFilter() {
-        return new CustomRolesAuthorizationFilter();
-    }
-
-
-    @Bean
-    public SystemLogFilter systemLogFilter() {
-        return new SystemLogFilter();
-    }
-
-
     @Bean("shiroFilter")
-    public ShiroFilterFactoryBean factory(DefaultWebSecurityManager securityManager, ShiroService shiroService) {
-        ShiroFilterFactoryBean factoryBean = new ShiroFilterFactoryBean();
+    public ShiroFilterFactoryBean factory(DefaultWebSecurityManager securityManager, ShiroService shiroService, RedisService redisService, SystemLogService systemLogService) {
+        ShiroFilterFactoryBean factoryBean = new RestShiroFilterFactoryBean();
 
         // 添加自己的过滤器并且取名为jwt
         Map<String, Filter> filterMap = new LinkedHashMap<>();
@@ -64,30 +55,25 @@ public class ShiroConfig {
         //jwt签发认证
         //采用new 的方式来自已创建这个filter对象.脱离spring的管理这个filter就不会注册到过滤器链中
 
-        filterMap.put("jwt", new JwtFilter());
+        filterMap.put("jwt", new JwtFilter(redisService));
         //url权限认证
-        filterMap.put("roles", rolesAuthorizationFilter());
-        filterMap.put("systemLogFilter", systemLogFilter());
+        filterMap.put("roles", new CustomRolesAuthorizationFilter());
+        filterMap.put("systemLogFilter", new SystemLogFilter(systemLogService));
         factoryBean.setFilters(filterMap);
 
         factoryBean.setSecurityManager(securityManager);
         factoryBean.setUnauthorizedUrl("/401");
-        //factoryBean.setUnauthorizedUrl("/user/login");
-        /*
+
+        /**
          * 自定义url规则
          * http://shiro.apache.org/web.html#urls-
          */
-        //shiroFilter.setFilterChainDefinitionMap(shiroService.getAllRolesByPermission());
+
         Map<String, String> map = shiroService.getApiPermissionMap();
         factoryBean.setFilterChainDefinitionMap(map);
         return factoryBean;
     }
 
-
-//    @Bean
-//    public JwtFilter jwtFilter() {
-//        return new JwtFilter();
-//    }
 
     /**
      * 下面的代码是添加注解支持

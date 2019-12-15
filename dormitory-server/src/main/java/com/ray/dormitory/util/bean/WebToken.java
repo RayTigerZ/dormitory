@@ -3,12 +3,18 @@ package com.ray.dormitory.util.bean;
 import org.apache.shiro.authc.AuthenticationToken;
 
 
-public class JWTToken implements AuthenticationToken {
+/**
+ * @author Ray
+ * @date 2019/12/05 22:52
+ */
+public class WebToken implements AuthenticationToken {
 
-    // 密钥
+    /**
+     * 登录凭证
+     */
     private String token;
 
-    public JWTToken(String token) {
+    public WebToken(String token) {
         this.token = token;
     }
 

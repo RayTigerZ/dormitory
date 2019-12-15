@@ -1,31 +1,34 @@
-package com.ray.dormitory.config;
+package com.ray.dormitory.config.shiro;
 
-import com.google.gson.Gson;
-import com.ray.dormitory.util.bean.ResponseBean;
 import com.ray.dormitory.service.RedisService;
 import com.ray.dormitory.util.JwtUtil;
+import com.ray.dormitory.util.ResponseUtil;
 import com.ray.dormitory.util.bean.ErrorEnum;
+import com.ray.dormitory.util.bean.ResponseBean;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.shiro.web.filter.authc.BasicHttpAuthenticationFilter;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.shiro.web.util.WebUtils;
 import org.springframework.http.HttpMethod;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.PrintWriter;
 
 /**
+ * JWT过滤器
+ *
  * @author Ray Z
  */
 @Slf4j
-//JWT过滤器
 public class JwtFilter extends BasicHttpAuthenticationFilter {
 
 
-    @Autowired
     private RedisService redisService;
+
+    public JwtFilter(RedisService redisService) {
+        this.redisService = redisService;
+    }
 
 
     /**
@@ -47,14 +50,9 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         HttpServletRequest httpServletRequest = (HttpServletRequest) request;
         String authorization = httpServletRequest.getHeader("Authorization");
 
-        //BeanFactory factory = WebApplicationContextUtils.getRequiredWebApplicationContext(request.getServletContext());
         //获取URI
         String uri = httpServletRequest.getRequestURI();
-        //获取basePath
-        String basePath = httpServletRequest.getContextPath();
-        if (null != uri && uri.startsWith(basePath)) {
-            uri = uri.replaceFirst(basePath, "");
-        }
+
         /*
          *  两步校验
          *  (1) token是否正确
@@ -67,7 +65,8 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
 
             String account = JwtUtil.getAccount(authorization);
             //校验登陆的token是否与缓存中的token保持一致
-            if (((String) redisService.get(JwtUtil.getAccountUserKey(account))).equalsIgnoreCase(authorization)) {
+            String token = (String) redisService.get(JwtUtil.getAccountUserKey(account));
+            if (authorization.equals(token)) {
 
                 String lastOperateTime = (String) redisService.get(JwtUtil.getAccountTimeKey(account));
                 //最近一次操作时间，不能超过30分钟
@@ -81,25 +80,6 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         return result;
     }
 
-//    @Override
-//    protected boolean onAccessDenied(ServletRequest request, ServletResponse response, Object mappedValue) throws Exception {
-//
-//        PrintWriter out = null;
-//        HttpServletResponse res = (HttpServletResponse) response;
-//        try {
-//            res.setCharacterEncoding("UTF-8");
-//            res.setContentType("application/json");
-//            out = response.getWriter();
-//            out.println(new Gson().toJson(new ResponseBean(ErrorEnum.ERROR_10002.getErrorCode(),ErrorEnum.ERROR_10002.getErrorMsg(),"")));
-//        } catch (Exception e) {
-//        } finally {
-//            if (null != out) {
-//                out.flush();
-//                out.close();
-//            }
-//        }
-//        return false;
-//    }
 
     @Override
     protected boolean isAccessAllowed(ServletRequest request, ServletResponse response, Object mappedValue) {
@@ -108,6 +88,7 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
             try {
                 result = executeLogin(request, response);
             } catch (Exception e) {
+                e.printStackTrace();
                 log.error(e.getMessage());
             }
 
@@ -120,6 +101,8 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
     /**
      * 对跨域提供支持
      */
+
+
     @Override
     protected boolean preHandle(ServletRequest request, ServletResponse response) throws Exception {
 
@@ -129,37 +112,51 @@ public class JwtFilter extends BasicHttpAuthenticationFilter {
         String url = servletRequest.getServletPath();
         log.info("JwtFilter preHandle url: {}", url);
 
+
         //处理跨域问题，跨域的请求首先会发一个options类型的请求
+
         if (servletRequest.getMethod().equals(HttpMethod.OPTIONS.name())) {
             return true;
         }
 
+//        boolean flag = false;
+//        for (Map.Entry<String, Object> entry : appliedPaths.entrySet()) {
+//            if (pathsMatch(entry.getKey(), request)) {
+//                flag = true;
+//                break;
+//            }
+//        }
+//        if (!flag) {
+//            return false;
+//        }
 
         boolean isAccess = isAccessAllowed(request, response, "");
         if (isAccess) {
             return true;
+        } else {
+            ResponseUtil.sendJson(servletRequest, servletResponse, new ResponseBean(ErrorEnum.ERROR_301));
+            return false;
         }
 
-        //Subject subject = getSubject(request, response);
-        ResponseBean responseBean = new ResponseBean(ErrorEnum.ERROR_301.getErrorCode(), ErrorEnum.ERROR_301.getErrorMsg(), "");
-        //ResponseUtil.writeJson(servletResponse, responseBean);
-
-        servletResponse.setCharacterEncoding("UTF-8");
-        PrintWriter printWriter = servletResponse.getWriter();
+    }
 
 
-        servletResponse.setContentType("application/json;charset=UTF-8");
-        servletResponse.setHeader("Access-Control-Allow-Origin", servletRequest.getHeader("Origin"));
-        servletResponse.setHeader("Access-Control-Allow-Credentials", "true");
-        servletResponse.setHeader("Vary", "Origin");
+    @Override
+    protected boolean pathsMatch(String path, ServletRequest request) {
+        String requestUri = this.getPathWithinApplication(request);
 
-        String respStr = new Gson().toJson(responseBean);
+        String[] strings = path.split("::");
 
-        printWriter.write(respStr);
-        printWriter.flush();
-        servletResponse.setHeader("content-Length", String.valueOf(respStr.getBytes().length));
+        if (strings.length <= 1) {
+            // 普通的 URL, 正常处理
+            return this.pathsMatch(strings[0], requestUri);
+        } else {
+            // 获取当前请求的 http method.
+            String httpMethod = WebUtils.toHttp(request).getMethod().toUpperCase();
 
-        return false;
+            // 匹配当前请求的 http method 与 过滤器链中的的是否一致
+            return httpMethod.equals(strings[1].toUpperCase()) && this.pathsMatch(strings[0], requestUri);
+        }
     }
 
 }

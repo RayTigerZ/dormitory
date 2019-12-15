@@ -1,12 +1,12 @@
-import { postRequest } from "@/utils/request";
-import { fileDownload } from "@/utils/utils";
-import { Message } from "element-ui";
+import { downloadRequest } from '@/utils/request';
+import { fileDownload } from '@/utils/utils';
+
 export function downloadBatchExcel(code) {
-    postRequest("/download/batchExcel", { code }, "arraybuffer")
-        .then(res => {
-            fileDownload(res.data, res.headers["filename"]);
-        })
-        .catch(err => {
-            Message.error(err);
-        });
+	downloadRequest('/download/batchExcel', { code })
+		.then(res => {
+			fileDownload(res.data, res.headers['filename']);
+		})
+		.catch(err => {
+			console.log(err);
+		});
 }

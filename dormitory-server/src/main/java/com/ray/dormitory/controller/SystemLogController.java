@@ -1,7 +1,8 @@
 package com.ray.dormitory.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.ray.dormitory.bean.po.SystemLog;
 import com.ray.dormitory.service.SystemLogService;
-import com.ray.dormitory.util.bean.ResponseBean;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,8 +21,8 @@ public class SystemLogController {
     private SystemLogService systemLogService;
 
     @GetMapping("/list")
-    public ResponseBean getLogList(int pageNum, int pageSize, String account, String begin, String end) {
+    public IPage<SystemLog> getLogList(int pageNum, int pageSize, String account, String begin, String end) {
 
-        return new ResponseBean(systemLogService.getPage(pageNum, pageSize, account, begin, end));
+        return systemLogService.getPage(pageNum, pageSize, account, begin, end);
     }
 }

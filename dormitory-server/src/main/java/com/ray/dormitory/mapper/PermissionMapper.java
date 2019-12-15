@@ -16,7 +16,7 @@ public interface PermissionMapper extends BaseMapper<Permission> {
 
 
     /**
-     * 获取用户对应的
+     * 获取用户对应的菜单
      *
      * @param userId
      * @return
